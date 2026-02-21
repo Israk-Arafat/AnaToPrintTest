@@ -236,10 +236,10 @@ describe("Storage Utils", () => {
     it("should prefer saved settings over defaults", () => {
       const savedSettings = {
         renderQuality: "medium" as const,
-        backgroundColor: "dark-gray" as const,
+        backgroundColor: "white" as const,
         showGrid: false,
         autoOptimize: false,
-        defaultExport: "obj" as const,
+        defaultExport: "stl" as const,
       };
 
       saveToSession("settings", savedSettings);
@@ -280,10 +280,10 @@ describe("Storage Utils", () => {
     it("should save complete settings object", () => {
       const settings = {
         renderQuality: "medium" as const,
-        backgroundColor: "dark-gray" as const,
+        backgroundColor: "white" as const,
         showGrid: false,
         autoOptimize: false,
-        defaultExport: "obj" as const,
+        defaultExport: "stl" as const,
       };
 
       saveSettings(settings);
@@ -316,10 +316,10 @@ describe("Storage Utils", () => {
 
       const secondSettings = {
         renderQuality: "low" as const,
-        backgroundColor: "dark-gray" as const,
+        backgroundColor: "white" as const,
         showGrid: false,
         autoOptimize: false,
-        defaultExport: "obj" as const,
+        defaultExport: "stl" as const,
       };
 
       saveSettings(firstSettings);
