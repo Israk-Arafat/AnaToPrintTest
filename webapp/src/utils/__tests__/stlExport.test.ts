@@ -53,10 +53,11 @@ describe("STL Export - Segmentation Tests", () => {
     createElementSpy = vi.spyOn(document, "createElement");
     appendChildSpy = vi.spyOn(document.body, "appendChild");
     removeChildSpy = vi.spyOn(document.body, "removeChild");
-    vi.spyOn(URL, "createObjectURL").mockReturnValue(
-      "blob:mock-url/12345"
-    );
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url/12345");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    // Suppress jsdom "Not implemented: navigation to another Document" warnings.
+    // downloadSTL calls link.click() on a blob-href anchor; jsdom can't navigate
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -76,7 +77,10 @@ describe("STL Export - Segmentation Tests", () => {
       const result = generateSTL(mockImageData, options);
 
       expect(result).toBeInstanceOf(Uint8Array);
-      expect(onProgress).toHaveBeenCalledWith("marching-cubes", expect.any(Object));
+      expect(onProgress).toHaveBeenCalledWith(
+        "marching-cubes",
+        expect.any(Object),
+      );
       expect(onProgress).toHaveBeenCalledWith("writing", expect.any(Object));
     });
 
@@ -92,7 +96,10 @@ describe("STL Export - Segmentation Tests", () => {
       const result = generateSTL(mockImageData, options);
 
       expect(result).toBeInstanceOf(Uint8Array);
-      expect(onProgress).toHaveBeenCalledWith("marching-cubes", expect.any(Object));
+      expect(onProgress).toHaveBeenCalledWith(
+        "marching-cubes",
+        expect.any(Object),
+      );
     });
 
     it("should generate STL with LOW_DENSITY threshold (skin)", () => {
@@ -124,7 +131,7 @@ describe("STL Export - Segmentation Tests", () => {
         "smoothing",
         expect.objectContaining({
           smoothingTime: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -141,7 +148,7 @@ describe("STL Export - Segmentation Tests", () => {
 
       expect(onProgress).not.toHaveBeenCalledWith(
         "smoothing",
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -157,13 +164,13 @@ describe("STL Export - Segmentation Tests", () => {
       generateSTL(mockImageData, options);
 
       const marchingCubesCall = onProgress.mock.calls.find(
-        (call) => call[0] === "marching-cubes"
+        (call) => call[0] === "marching-cubes",
       );
       expect(marchingCubesCall?.[1]).toEqual(
         expect.objectContaining({
           polygonCount: expect.any(Number),
           marchingCubesTime: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -179,12 +186,12 @@ describe("STL Export - Segmentation Tests", () => {
       generateSTL(mockImageData, options);
 
       const writingCall = onProgress.mock.calls.find(
-        (call) => call[0] === "writing"
+        (call) => call[0] === "writing",
       );
       expect(writingCall?.[1]).toEqual(
         expect.objectContaining({
           totalTime: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -307,7 +314,7 @@ describe("STL Export - Segmentation Tests", () => {
         "test_model",
         "HIGH_DENSITY",
         false,
-        onProgress
+        onProgress,
       );
 
       await expect(promise).resolves.toBeUndefined();
@@ -318,7 +325,13 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "HIGH_DENSITY", false, onProgress);
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "HIGH_DENSITY",
+        false,
+        onProgress,
+      );
 
       expect(onProgress).toHaveBeenCalled();
     });
@@ -328,7 +341,13 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "MEDIUM_DENSITY", false, onProgress);
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "MEDIUM_DENSITY",
+        false,
+        onProgress,
+      );
 
       expect(onProgress).toHaveBeenCalled();
     });
@@ -338,7 +357,13 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "LOW_DENSITY", false, onProgress);
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "LOW_DENSITY",
+        false,
+        onProgress,
+      );
 
       expect(onProgress).toHaveBeenCalled();
     });
@@ -354,7 +379,7 @@ describe("STL Export - Segmentation Tests", () => {
         "test",
         customThreshold,
         false,
-        onProgress
+        onProgress,
       );
 
       expect(onProgress).toHaveBeenCalled();
@@ -365,12 +390,15 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "HIGH_DENSITY", true, onProgress);
-
-      expect(onProgress).toHaveBeenCalledWith(
-        "smoothing",
-        expect.anything()
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "HIGH_DENSITY",
+        true,
+        onProgress,
       );
+
+      expect(onProgress).toHaveBeenCalledWith("smoothing", expect.anything());
     });
 
     it("should skip smoothing when disabled", async () => {
@@ -378,11 +406,17 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "HIGH_DENSITY", false, onProgress);
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "HIGH_DENSITY",
+        false,
+        onProgress,
+      );
 
       expect(onProgress).not.toHaveBeenCalledWith(
         "smoothing",
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -391,7 +425,13 @@ describe("STL Export - Segmentation Tests", () => {
       const mockLink = document.createElement("a");
       createElementSpy.mockReturnValue(mockLink);
 
-      await exportToSTL(mockImageData, "test", "HIGH_DENSITY", false, onProgress);
+      await exportToSTL(
+        mockImageData,
+        "test",
+        "HIGH_DENSITY",
+        false,
+        onProgress,
+      );
 
       expect(onProgress).toHaveBeenCalledWith("complete", {});
     });
@@ -404,12 +444,11 @@ describe("STL Export - Segmentation Tests", () => {
         mockImageData,
         "test_model",
         "HIGH_DENSITY",
-        false
+        false,
       );
 
       await expect(promise).resolves.toBeUndefined();
     });
-
   });
 
   describe("HU_THRESHOLDS", () => {
