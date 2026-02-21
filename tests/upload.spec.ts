@@ -23,10 +23,10 @@ test.describe("Upload Page", () => {
     browserName,
   }) => {
     // Temporary skip Firefox
-    test.skip(
-      browserName === "firefox",
-      "Temporary skip Firefox has issues with directory uploads in CI"
-    );
+    // test.skip(
+    //   browserName === "firefox",
+    //   "Temporary skip Firefox has issues with directory uploads in CI"
+    // );
 
     await uploadDicomFiles(page);
 
@@ -42,7 +42,9 @@ test.describe("Upload Page", () => {
     await continueButton.click();
 
     await expect(page).toHaveURL("/preview", { timeout: 10000 });
-    await expect(page.getByRole("heading", { name: /3D Preview/i })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: /3D Preview/i }),
+    ).toBeVisible({
       timeout: 10000,
     });
   });
@@ -51,17 +53,19 @@ test.describe("Upload Page", () => {
     page,
     browserName,
   }) => {
-    test.skip(
-      browserName === "firefox",
-      "Firefox has issues with directory uploads in CI"
-    );
+    // test.skip(
+    //   browserName === "firefox",
+    //   "Firefox has issues with directory uploads in CI"
+    // );
 
     await uploadDicomFiles(page);
 
     await expect(page.getByText("Successfully loaded")).toBeVisible();
   });
 
-  test("should show error for non-DICOM files (folder upload)", async ({ page }) => {
+  test("should show error for non-DICOM files (folder upload)", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     const fileInput = page.locator('input[type="file"]');
