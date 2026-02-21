@@ -316,7 +316,7 @@ describe("Storage Utils", () => {
 
       const secondSettings = {
         renderQuality: "low" as const,
-        backgroundColor: "dark-gray" as const,
+        backgroundColor: "white" as const,
         showGrid: false,
         autoOptimize: false,
         defaultExport: "obj" as const,
