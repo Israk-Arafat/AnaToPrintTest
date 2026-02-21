@@ -5,10 +5,10 @@ test.describe("Export Page", () => {
   test.setTimeout(60000);
 
   test.beforeEach(async ({ page, browserName }) => {
-    test.skip(
-      browserName === "firefox",
-      "Firefox has issues with directory uploads in CI"
-    );
+    // test.skip(
+    //   browserName === "firefox",
+    //   "Firefox has issues with directory uploads in CI"
+    // );
 
     await page.goto("/");
     await uploadDicomFiles(page);
@@ -27,7 +27,7 @@ test.describe("Export Page", () => {
   test("should allow selecting tissue thresholds", async ({ page }) => {
     await expect(page.getByText("High Density (Bone)").first()).toBeVisible();
     await expect(
-      page.getByText("Medium Density (Muscle/Organs/Brain)").first()
+      page.getByText("Medium Density (Muscle/Organs/Brain)").first(),
     ).toBeVisible();
     await expect(page.getByText("Low Density (Skin)").first()).toBeVisible();
 

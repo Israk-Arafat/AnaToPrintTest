@@ -8,7 +8,7 @@ test.describe("Navigation", () => {
 
     await expect(page.getByText("No file loaded")).toBeVisible();
     await expect(
-      page.getByText("Please upload a CT scan before previewing")
+      page.getByText("Please upload a CT scan before previewing"),
     ).toBeVisible();
 
     await page.getByRole("button", { name: /Go to Upload/i }).click();
@@ -23,7 +23,7 @@ test.describe("Navigation", () => {
 
     await expect(page.getByText("No file loaded")).toBeVisible();
     await expect(
-      page.getByText("Please upload a CT scan before exporting")
+      page.getByText("Please upload a CT scan before exporting"),
     ).toBeVisible();
 
     await page.getByRole("button", { name: /Go to Upload/i }).click();
@@ -43,11 +43,10 @@ test.describe("Navigation", () => {
   });
 
   //Checking for content within pages
-  test('About page content visible', async ({ page }) => {
-    await page.goto('http://localhost:5173/about');
-    await expect(page.locator('text=AnaToPrint')).toBeVisible();
-    await expect(page.locator('text=Group Members')).toBeVisible();
-    await expect(page.locator('text=Client')).toBeVisible();
+  test("About page content visible", async ({ page }) => {
+    await page.goto("http://localhost:5173/about");
+    await expect(page.locator('h1:has-text("AnaToPrint")')).toBeVisible();
+    await expect(page.locator("text=Group Members")).toBeVisible();
+    await expect(page.locator("text=Client")).toBeVisible();
   });
-
 });
