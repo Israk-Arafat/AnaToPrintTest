@@ -10,7 +10,7 @@ Capstone project for BS in Computer Science, University of Maine
 
 ```bash
    git clone
-   cd Ochre-Capstone
+   cd AnaToPrint
 ```
 
 2. Install dependencies
@@ -27,18 +27,37 @@ Capstone project for BS in Computer Science, University of Maine
 
 4. Open browser to http://localhost:5173
 
+## Running Tests
+
+### Unit & Component Tests (Vitest)
+
+```bash
+cd webapp
+npx vitest run
+```
+
+### E2E Tests (Playwright)
+
+```bash
+# Install browsers (first time only)
+npx playwright install --with-deps
+
+# Run on all browsers
+npm run test:e2e
+```
+
 ## Tech Stack
 
 - **Frontend**: React + TypeScript
 - **Build Tool**: Vite
 - **3D Visualization**: VTK.js
 - **DICOM Processing**: ITK.WASM
-- **Testing**:  End-to-End Testing - Playwright + Unit & Component Testing - Vitest
+- **Testing**: End-to-End Testing - Playwright + Unit & Component Testing - Vitest
 
 ## Project Structure
 
 - `docs/` - Project documentation (proposal, SRS)
-- `src/webapp/` - React frontend application
+- `webapp/` - React frontend application
 - `tests/` - End-to-end tests
 
 ## Features
