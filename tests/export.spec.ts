@@ -20,8 +20,8 @@ test.describe("Export Page", () => {
   test("should display export options", async ({ page }) => {
     await expect(page.locator("h2")).toContainText("Export 3D Model");
     await expect(page.getByText("STL File")).toBeVisible();
-    await expect(page.getByText("G-code")).toBeVisible();
-    await expect(page.getByText("Coming soon")).toBeVisible();
+    await expect(page.getByText("G-code", { exact: true })).toBeVisible();
+    await expect(page.getByText("Export PNGs for G-code generation (downloads organized PNG zip)")).toBeVisible();
   });
 
   test("should allow selecting tissue thresholds", async ({ page }) => {

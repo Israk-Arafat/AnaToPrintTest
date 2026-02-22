@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { ExportFormat } from "../types";
 import { useDicomContext } from "../contexts/DicomContext";
 import { exportToSTL, HU_THRESHOLDS } from "../utils";
+import {
+  convertDicomSeriesToPng,
+  downloadOrganizedPngs,
+} from "../utils/dicomToPng";
 import ExportProgressModal from "../components/ExportProgressModal";
 
 const TISSUE_LABELS: Record<keyof typeof HU_THRESHOLDS, string> = {
@@ -13,7 +17,7 @@ const TISSUE_LABELS: Record<keyof typeof HU_THRESHOLDS, string> = {
 
 const ExportPage = () => {
   const navigate = useNavigate();
-  const { getVtkImage, hasData } = useDicomContext();
+  const { getVtkImage, hasData, fileInfo } = useDicomContext();
   const [exportFormat, setExportFormat] = useState<ExportFormat>("stl");
   const [filename, setFilename] = useState("ct_scan_bone_model");
   const [threshold, setThreshold] = useState<
@@ -65,9 +69,45 @@ const ExportPage = () => {
             setExportMetrics((prev) => ({ ...prev, ...metrics }));
           },
         );
-      } else {
-        setIsExporting(false);
-        alert("G-code export is not yet implemented");
+      } else if (exportFormat === "gcode") {
+        // Export flow for G-code: convert DICOM -> PNGs (organized by series) and download zip
+        if (!fileInfo || fileInfo.length === 0) {
+          alert("No original DICOM files available for PNG export.");
+          setIsExporting(false);
+          return;
+        }
+
+        const files = fileInfo.map((f) => f.file).filter(Boolean) as File[];
+
+        try {
+          const start = performance.now();
+          setExportStage("writing");
+
+          const { resultsBySeries } = await convertDicomSeriesToPng(files, {
+            progressCallback: (evt) => {
+              if (evt && (evt as any).loaded !== undefined && (evt as any).total !== undefined) {
+                // update a simple progress metric based on slices processed
+                setExportMetrics((prev) => ({ ...prev, writingTime: (evt as any).loaded }));
+              }
+            },
+          });
+
+          await downloadOrganizedPngs(resultsBySeries, `${filename}.zip`);
+
+          const total = performance.now() - start;
+          setExportMetrics((prev) => ({ ...prev, totalTime: total, writingTime: total }));
+          setExportStage("complete");
+
+          // Close the modal shortly after showing completion so user sees success
+          setTimeout(() => {
+            handleModalClose();
+          }, 1200);
+        } catch (err) {
+          console.error("G-code export error:", err);
+          alert("Failed to generate PNG zip for G-code export.");
+          setIsExporting(false);
+          setExportStage(null);
+        }
       }
     } catch (error) {
       setIsExporting(false);
@@ -144,25 +184,19 @@ const ExportPage = () => {
                 </div>
               </div>
             </label>
-            <label className="bg-gray-300 flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-300 transition-colors">
+            <label className="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
               <input
                 type="radio"
                 name="export-format"
                 value="gcode"
                 checked={exportFormat === "gcode"}
                 onChange={() => setExportFormat("gcode")}
-                disabled
                 className="mt-1 w-4 h-4 text-blue-500"
               />
               <div>
-                <div className="font-medium text-gray-800">
-                  G-code{" "}
-                  <span className="text-xs inline-flex items-center px-2 py-0.5 rounded bg-gray-200 text-gray-700 ml-2">
-                    Coming soon
-                  </span>
-                </div>
+                <div className="font-medium text-gray-800">G-code</div>
                 <div className="text-sm text-gray-600">
-                  Direct 3D printer instructions with density information
+                  Export PNGs for G-code generation (downloads organized PNG zip)
                 </div>
               </div>
             </label>
@@ -302,7 +336,8 @@ const ExportPage = () => {
               <strong>Format:</strong> {exportFormat.toUpperCase()}
             </p>
             <p>
-              <strong>Filename:</strong> {filename}.{exportFormat}
+              <strong>Filename:</strong> {filename}.
+              {exportFormat === "gcode" ? "zip" : exportFormat}
             </p>
           </div>
         </div>

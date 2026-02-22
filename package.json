@@ -32,5 +32,10 @@
     "chromedriver": "^142.0.3",
     "geckodriver": "^6.0.2",
     "selenium-webdriver": "^4.38.0"
+  },
+  "dependencies": {
+    "@itk-wasm/image-io": "^1.6.0",
+    "@types/jszip": "^3.4.0",
+    "jszip": "^3.10.1"
   }
 }
