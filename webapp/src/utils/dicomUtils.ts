@@ -5,7 +5,9 @@ import {
 } from "@itk-wasm/dicom";
 
 // Set the base URL for ITK-Wasm pipelines
-setPipelinesBaseUrl("/pipelines");
+if (typeof setPipelinesBaseUrl === "function") {
+  setPipelinesBaseUrl("/pipelines");
+}
 
 export interface DicomFileInfo {
   file: File;
