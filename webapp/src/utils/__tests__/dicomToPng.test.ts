@@ -58,8 +58,6 @@ vi.mock("jszip", () => ({
 describe("DICOM to PNG Converter", () => {
   let mockFiles: File[];
   let createElementSpy: any;
-  let appendChildSpy: any;
-  let removeChildSpy: any;
   let mockLink: HTMLAnchorElement;
 
   beforeEach(() => {
@@ -82,8 +80,8 @@ describe("DICOM to PNG Converter", () => {
 
     // Mock DOM methods
     createElementSpy = vi.spyOn(document, "createElement");
-    appendChildSpy = vi.spyOn(document.body, "appendChild").mockImplementation(() => mockLink);
-    removeChildSpy = vi.spyOn(document.body, "removeChild").mockImplementation(() => mockLink);
+    vi.spyOn(document.body, "appendChild").mockImplementation(() => mockLink);
+    vi.spyOn(document.body, "removeChild").mockImplementation(() => mockLink);
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url/12345");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
