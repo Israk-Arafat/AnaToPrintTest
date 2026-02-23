@@ -5,10 +5,6 @@ test.describe("Export Page", () => {
   test.setTimeout(60000);
 
   test.beforeEach(async ({ page, browserName }) => {
-    // test.skip(
-    //   browserName === "firefox",
-    //   "Firefox has issues with directory uploads in CI"
-    // );
 
     await page.goto("/");
     await uploadDicomFiles(page);

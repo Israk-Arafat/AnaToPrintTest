@@ -35,6 +35,9 @@ const ExportPage = () => {
     writingTime?: number;
     totalTime?: number;
     polygonCount?: number;
+    slicesProcessed?: number;
+    totalSlices?: number;
+
   }>({});
 
   const handleExport = async () => {
@@ -85,9 +88,12 @@ const ExportPage = () => {
 
           const { resultsBySeries } = await convertDicomSeriesToPng(files, {
             progressCallback: (evt) => {
-              if (evt && (evt as any).loaded !== undefined && (evt as any).total !== undefined) {
-                // update a simple progress metric based on slices processed
-                setExportMetrics((prev) => ({ ...prev, writingTime: (evt as any).loaded }));
+              if (evt && evt.loaded !== undefined && evt.total !== undefined) {
+                setExportMetrics((prev) => ({
+                  ...prev,
+                  slicesProcessed: evt.loaded,
+                  totalSlices: evt.total,
+                }));
               }
             },
           });
@@ -95,7 +101,11 @@ const ExportPage = () => {
           await downloadOrganizedPngs(resultsBySeries, `${filename}.zip`);
 
           const total = performance.now() - start;
-          setExportMetrics((prev) => ({ ...prev, totalTime: total, writingTime: total }));
+          setExportMetrics((prev) => ({
+            ...prev,
+            totalTime: total,
+            writingTime: total,
+          }));
           setExportStage("complete");
 
           // Close the modal shortly after showing completion so user sees success
@@ -151,6 +161,7 @@ const ExportPage = () => {
         isOpen={isExporting}
         stage={exportStage}
         metrics={exportMetrics}
+        exportFormat={exportFormat === "gcode" ? "png" : "stl"}
         onClose={handleModalClose}
       />
 
@@ -196,7 +207,8 @@ const ExportPage = () => {
               <div>
                 <div className="font-medium text-gray-800">G-code</div>
                 <div className="text-sm text-gray-600">
-                  Export PNGs for G-code generation (downloads organized PNG zip)
+                  Export PNGs for G-code generation (downloads organized PNG
+                  zip)
                 </div>
               </div>
             </label>
