@@ -36,8 +36,12 @@ jobs:
           retention-days: 30
 
   e2e-tests:
-    name: E2E Tests
-    runs-on: ubuntu-latest
+    name: E2E Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -52,16 +56,16 @@ jobs:
         run: npm ci
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run E2E tests
-        run: npm run test:e2e -- --project=chromium --project=firefox
+        run: npm run test:e2e -- --project=chromium --project=firefox --project=webkit
 
       - name: Upload E2E Test Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-test-artifacts
+          name: e2e-test-artifacts-${{ matrix.os }}
           path: |
             playwright-report/
             test-results/
