@@ -22,11 +22,6 @@ test.describe("Upload Page", () => {
     page,
     browserName,
   }) => {
-    // Temporary skip Firefox
-    // test.skip(
-    //   browserName === "firefox",
-    //   "Temporary skip Firefox has issues with directory uploads in CI"
-    // );
 
     await uploadDicomFiles(page);
 

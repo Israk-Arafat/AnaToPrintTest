@@ -9,7 +9,10 @@ interface ExportProgressModalProps {
     writingTime?: number;
     totalTime?: number;
     polygonCount?: number;
+    slicesProcessed?: number;
+    totalSlices?: number;
   };
+  exportFormat?: "stl" | "png";
   onClose: () => void;
 }
 
@@ -17,6 +20,7 @@ const ExportProgressModal = ({
   isOpen,
   stage,
   metrics,
+  exportFormat = "stl",
   onClose,
 }: ExportProgressModalProps) => {
   const [progress, setProgress] = useState(0);
@@ -27,28 +31,73 @@ const ExportProgressModal = ({
       return;
     }
 
-    // Update progress based on stage
-    switch (stage) {
-      case "marching-cubes":
-        setProgress(30);
-        break;
-      case "smoothing":
-        setProgress(60);
-        break;
-      case "writing":
-        setProgress(85);
-        break;
-      case "complete":
-        setProgress(100);
-        break;
-      default:
-        setProgress(10);
+    // Update progress based on stage and format
+    if (exportFormat === "png") {
+      switch (stage) {
+        case "writing":
+          if (
+            metrics.slicesProcessed !== undefined &&
+            metrics.totalSlices !== undefined &&
+            metrics.totalSlices > 0
+          ) {
+            setProgress(
+              Math.round((metrics.slicesProcessed / metrics.totalSlices) * 90),
+            );
+          } else {
+            setProgress(20);
+          }
+          break;
+        case "complete":
+          setProgress(100);
+          break;
+        default:
+          setProgress(10);
+      }
+    } else {
+      switch (stage) {
+        case "marching-cubes":
+          setProgress(30);
+          break;
+        case "smoothing":
+          setProgress(60);
+          break;
+        case "writing":
+          setProgress(85);
+          break;
+        case "complete":
+          setProgress(100);
+          break;
+        default:
+          setProgress(10);
+      }
     }
-  }, [isOpen, stage]);
+  }, [
+    isOpen,
+    stage,
+    exportFormat,
+    metrics.slicesProcessed,
+    metrics.totalSlices,
+  ]);
 
   if (!isOpen) return null;
 
   const getStageLabel = () => {
+    if (exportFormat === "png") {
+      switch (stage) {
+        case "writing":
+          if (
+            metrics.slicesProcessed !== undefined &&
+            metrics.totalSlices !== undefined
+          ) {
+            return `Converting DICOM slices... (${metrics.slicesProcessed}/${metrics.totalSlices})`;
+          }
+          return "Converting DICOM slices...";
+        case "complete":
+          return "Export complete!";
+        default:
+          return "Preparing PNG export...";
+      }
+    }
     switch (stage) {
       case "marching-cubes":
         return "Extracting surface mesh...";
@@ -67,7 +116,9 @@ const ExportProgressModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
         <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-          Processing 3D Model
+          {exportFormat === "png"
+            ? "Exporting PNG Images"
+            : "Processing 3D Model"}
         </h3>
 
         {/* Progress Bar */}
@@ -112,9 +163,30 @@ const ExportProgressModal = ({
             </div>
           )}
 
-          {metrics.writingTime !== undefined && (
+          {exportFormat === "png" && metrics.slicesProcessed !== undefined && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-600">Slices Converted:</span>
+              <span className="font-mono text-gray-800">
+                {metrics.slicesProcessed}
+                {metrics.totalSlices !== undefined
+                  ? ` / ${metrics.totalSlices}`
+                  : ""}
+              </span>
+            </div>
+          )}
+
+          {exportFormat !== "png" && metrics.writingTime !== undefined && (
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">STL Writing:</span>
+              <span className="font-mono text-gray-800">
+                {metrics.writingTime.toFixed(2)} ms
+              </span>
+            </div>
+          )}
+
+          {exportFormat === "png" && metrics.writingTime !== undefined && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-600">Conversion Time:</span>
               <span className="font-mono text-gray-800">
                 {metrics.writingTime.toFixed(2)} ms
               </span>
