@@ -5,6 +5,8 @@ import ExportPage from "../ExportPage";
 import * as DicomContextModule from "../../contexts/DicomContext";
 import type { DicomFileInfo } from "../../utils/dicomUtils";
 
+//Mocks
+
 const {
   mockedUseNavigate,
   mockedExportToSTL,
@@ -58,6 +60,8 @@ const buildContext = (
   clearDicomData: vi.fn(),
   ...overrides,
 });
+
+//Tests
 
 describe("ExportPage", () => {
   const baseFileInfo = [

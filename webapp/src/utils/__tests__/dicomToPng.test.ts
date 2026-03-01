@@ -133,6 +133,8 @@ describe("DICOM to PNG Converter", () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
+  
+  //Tests
 
   describe("convertDicomSlicesToPng()", () => {
     it("should convert DICOM files to PNG", async () => {

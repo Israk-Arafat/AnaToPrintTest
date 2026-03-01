@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { DicomProvider, useDicomContext } from "../DicomContext";
 import type { DicomFileInfo } from "../../utils/dicomUtils";
 
+
+// DicomContext is a React context that stores uploaded DICOM data (VTK image + file info)
+//and makes it available across the app.  Since context has no UI of its own, ContextHarness
+//is a minimal test component that exposes context values and actions as DOM elements 
+
+//Mocks
+
 const mockVtkImage = { id: "vtk-image" } as any;
 
 const mockFileInfo: DicomFileInfo[] = [
@@ -31,6 +38,7 @@ function ContextHarness() {
     </div>
   );
 }
+// Tests
 
 describe("DicomContext", () => {
   beforeEach(() => {

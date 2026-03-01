@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Viewer3D from "../Viewer3D";
 
+//Viewer3D renders DICOM volume data using VTK.js, which cannot run in a test environment
+//All VTK objects are replaced with vi.fn() stubs, and tests verify that Viewer3D calls the correct VTK methods
+//in the correct order when setting up and interacting with the 3d rendering pipeline
+
 type MockFn = ReturnType<typeof vi.fn>;
 
 interface SceneMocks {
@@ -54,6 +58,12 @@ interface SceneMocks {
     removeAllPoints: MockFn;
   };
 }
+
+
+// vi.hoisted() is required because vi.mock() calls are hoisted to the top of the file by vitest's transformer.
+// variables used inside vi.mock() must be defined here to be available - mocks will be in place before the modules they're mocking get loaded
+
+// Mocks
 
 const vtkMocks = vi.hoisted(() => {
   const scenes: SceneMocks[] = [];
@@ -135,11 +145,15 @@ const vtkMocks = vi.hoisted(() => {
     return scene;
   };
 
+  // Creates a new scene, sets it as current, and returns it
+  //Only called when a new Fullscreenrenderer is instantiated 
   const createAndSetCurrentScene = (): SceneMocks => {
     currentScene = createScene();
     return currentScene;
   };
 
+  // Returns the existing current scene, creating one if none exists yet
+  // Used by mappers, actors, etc. that belong to the scene already being built
   const getCurrentScene = (): SceneMocks => {
     if (!currentScene) {
       currentScene = createScene();
@@ -152,7 +166,12 @@ const vtkMocks = vi.hoisted(() => {
     currentScene = null;
   };
 
+  // Creating a fullscreenrenderer signals the start of a new VTK scene
+  //Each call produces a fresh scene and sets it as the current one
   const fullScreenNewInstance = vi.fn(() => createAndSetCurrentScene().fullScreenRenderer);
+
+  //Mapper, actor, and transfer functions are created after the scene is initalized
+  //they attach to whichever scene is already current rather than creating a new one
   const volumeMapperNewInstance = vi.fn(() => getCurrentScene().mapper);
   const volumeNewInstance = vi.fn(() => getCurrentScene().actor);
   const colorTransferNewInstance = vi.fn(() => getCurrentScene().ctfun);
@@ -204,6 +223,8 @@ vi.mock("@kitware/vtk.js/Common/DataModel/PiecewiseFunction", () => ({
   },
   vtkPiecewiseFunction: {},
 }));
+
+//Tests
 
 describe("Viewer3D", () => {
   beforeEach(() => {
