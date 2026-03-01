@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Mock } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import UploadPage from "../UploadPage";
 import * as DicomContextModule from "../../contexts/DicomContext";
@@ -89,6 +89,18 @@ const renderPage = () =>
       <UploadPage />
     </MemoryRouter>,
   );
+
+const getDropZone = (container: HTMLElement) => {
+  const dropZone = container.querySelector("div.border-2.border-dashed");
+  expect(dropZone).toBeInTheDocument();
+  return dropZone as HTMLDivElement;
+};
+
+const getFileInput = (container: HTMLElement) => {
+  const input = container.querySelector('input[type="file"]');
+  expect(input).toBeInTheDocument();
+  return input as HTMLInputElement;
+};
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -187,6 +199,49 @@ describe("UploadPage", () => {
     expect(
       screen.getByText(/Successfully loaded 1 DICOM files/i),
     ).toBeInTheDocument();
+  });
+
+  it("auto-syncs completed upload data into context when context has no existing data", async () => {
+    const dicomFile = makeDicomFile();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({
+        isComplete: true,
+        vtkImage: mockVtkImage,
+        fileInfo: [dicomFile],
+      }),
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockSetDicomData).toHaveBeenCalledWith(mockVtkImage, [dicomFile]);
+    });
+  });
+
+  it("does not auto-sync upload data when context already has data", async () => {
+    const dicomFile = makeDicomFile();
+    vi.spyOn(DicomContextModule, "useDicomContext").mockReturnValue(
+      buildContext({
+        hasData: true,
+        getVtkImage: () => mockVtkImage,
+        fileInfo: [dicomFile],
+        setDicomData: mockSetDicomData,
+        clearDicomData: mockClearDicomData,
+      }),
+    );
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({
+        isComplete: true,
+        vtkImage: mockVtkImage,
+        fileInfo: [dicomFile],
+      }),
+    );
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockSetDicomData).not.toHaveBeenCalled();
+    });
   });
 
   it("displays patient name from first file info entry", () => {
@@ -288,6 +343,163 @@ describe("UploadPage", () => {
   it("does not show error block when error is null", () => {
     renderPage();
     expect(screen.queryByText(/^Error$/i)).not.toBeInTheDocument();
+  });
+
+  // -------------------------------------------------------------------------
+  // Drag/drop + browse interactions
+  // -------------------------------------------------------------------------
+
+  it("updates drag styling on drag over and drag leave", () => {
+    const { container } = renderPage();
+    const dropZone = getDropZone(container);
+
+    fireEvent.dragOver(dropZone);
+    expect(dropZone.className).toContain("border-blue-500");
+
+    fireEvent.dragLeave(dropZone);
+    expect(dropZone.className).toContain("border-gray-300");
+  });
+
+  it("clicking drop zone clears current data and opens file browser", () => {
+    const mockClearUpload = vi.fn();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({ clearUpload: mockClearUpload }),
+    );
+
+    const { container } = renderPage();
+    const dropZone = getDropZone(container);
+    const input = getFileInput(container);
+    const clickSpy = vi.spyOn(input, "click").mockImplementation(() => {});
+
+    fireEvent.click(dropZone);
+
+    expect(mockClearUpload).toHaveBeenCalledTimes(1);
+    expect(mockClearDicomData).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("uploads selected files from hidden file input", () => {
+    const mockUploadDicomFiles = vi.fn();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({ uploadDicomFiles: mockUploadDicomFiles }),
+    );
+
+    const { container } = renderPage();
+    const input = getFileInput(container);
+    const file = makeDicomFile("selected.dcm").file;
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(mockUploadDicomFiles).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores empty selection from hidden file input", () => {
+    const mockUploadDicomFiles = vi.fn();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({ uploadDicomFiles: mockUploadDicomFiles }),
+    );
+
+    const { container } = renderPage();
+    const input = getFileInput(container);
+
+    fireEvent.change(input, { target: { files: [] } });
+
+    expect(mockUploadDicomFiles).not.toHaveBeenCalled();
+  });
+
+  it("returns early on drop when no dataTransfer items are present", () => {
+    const mockUploadDicomFiles = vi.fn();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({ uploadDicomFiles: mockUploadDicomFiles }),
+    );
+
+    const { container } = renderPage();
+    const dropZone = getDropZone(container);
+
+    fireEvent.drop(dropZone, { dataTransfer: { items: [] } });
+
+    expect(mockUploadDicomFiles).not.toHaveBeenCalled();
+  });
+
+  it("traverses dropped directory entries recursively and uploads collected files", async () => {
+    const mockUploadDicomFiles = vi.fn();
+    vi.spyOn(HooksModule, "useDicomUpload").mockReturnValue(
+      buildUploadHook({ uploadDicomFiles: mockUploadDicomFiles }),
+    );
+
+    const rootFile = makeDicomFile("root.dcm").file;
+    const nestedFile = makeDicomFile("nested.dcm").file;
+
+    const rootFileEntry = {
+      isFile: true,
+      isDirectory: false,
+      file: (callback: (file: File) => void) => callback(rootFile),
+    };
+
+    const nestedFileEntry = {
+      isFile: true,
+      isDirectory: false,
+      file: (callback: (file: File) => void) => callback(nestedFile),
+    };
+
+    const directoryEntry = {
+      isFile: false,
+      isDirectory: true,
+      createReader: () => {
+        let callCount = 0;
+        return {
+          readEntries: (callback: (entries: any[]) => void) => {
+            if (callCount === 0) {
+              callCount += 1;
+              callback([nestedFileEntry]);
+              return;
+            }
+            callback([]);
+          },
+        };
+      },
+    };
+
+    const addedFiles: File[] = [];
+    const originalDataTransfer = (globalThis as any).DataTransfer;
+
+    class MockDataTransfer {
+      items = {
+        add: (file: File) => {
+          addedFiles.push(file);
+        },
+      };
+
+      get files() {
+        return addedFiles as unknown as FileList;
+      }
+    }
+
+    (globalThis as any).DataTransfer = MockDataTransfer;
+
+    const { container } = renderPage();
+    const dropZone = getDropZone(container);
+
+    fireEvent.drop(dropZone, {
+      dataTransfer: {
+        items: [
+          { kind: "file", webkitGetAsEntry: () => rootFileEntry },
+          { kind: "file", webkitGetAsEntry: () => directoryEntry },
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockUploadDicomFiles).toHaveBeenCalledTimes(1);
+    });
+
+    const uploadedFiles = mockUploadDicomFiles.mock.calls[0][0] as unknown as File[];
+    expect(uploadedFiles).toHaveLength(2);
+    expect(uploadedFiles.map((file) => file.name)).toEqual(
+      expect.arrayContaining(["root.dcm", "nested.dcm"]),
+    );
+
+    (globalThis as any).DataTransfer = originalDataTransfer;
   });
 
   // -------------------------------------------------------------------------
