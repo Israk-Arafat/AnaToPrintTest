@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
+  convertDicomSeriesToPng,
   convertDicomSlicesToPng,
+  downloadOrganizedPngs,
   downloadPngsAsZip,
 } from "../dicomToPng";
+import { parseDicomFiles, groupDicomFiles } from "../dicomUtils";
 
 // Mock dependencies
 vi.mock("@itk-wasm/image-io", () => ({
@@ -17,17 +20,27 @@ vi.mock("@itk-wasm/image-io", () => ({
 }));
 
 vi.mock("../dicomUtils", () => ({
-  parseDicomFiles: vi.fn((files) =>
-    Promise.resolve(
-      Array.from(files).map((file) => ({
-        file,
-        isDICOM: true,
-        patientID: "TEST123",
-        patientName: "Test Patient",
-        seriesInstanceID: "1.2.3.4",
-      }))
-    )
-  ),
+  parseDicomFiles: vi.fn((files, progressCallback) => {
+    const parsed = Array.from(files).map((file) => ({
+      file,
+      isDICOM: true,
+      patientID: "TEST123",
+      patientName: "Test Patient",
+      studyInstanceID: "study1",
+      seriesInstanceID: "series1",
+      seriesDescription: "Default Series",
+    }));
+
+    if (progressCallback) {
+      progressCallback({
+        lengthComputable: true,
+        loaded: 0,
+        total: parsed.length,
+      });
+    }
+
+    return Promise.resolve(parsed);
+  }),
   groupDicomFiles: vi.fn((fileInfos) => {
     const map = new Map();
     map.set(
@@ -41,7 +54,7 @@ vi.mock("../dicomUtils", () => ({
 // Mock JSZip properly
 const mockZipInstance = {
   file: vi.fn(),
-  folder: vi.fn(function() {
+  folder: vi.fn(function () {
     return {
       file: vi.fn(),
     };
@@ -59,6 +72,7 @@ describe("DICOM to PNG Converter", () => {
   let mockFiles: File[];
   let createElementSpy: any;
   let mockLink: HTMLAnchorElement;
+  let originalCreateElement: typeof document.createElement;
 
   beforeEach(() => {
     // Create mock DICOM files
@@ -77,6 +91,7 @@ describe("DICOM to PNG Converter", () => {
     // Create a real link element that we'll reuse
     mockLink = document.createElement("a");
     mockLink.click = vi.fn();
+    originalCreateElement = document.createElement.bind(document);
 
     // Mock DOM methods
     createElementSpy = vi.spyOn(document, "createElement");
@@ -110,7 +125,7 @@ describe("DICOM to PNG Converter", () => {
         return mockLink;
       }
       // For any other tag, create a real element
-      const element = document.createElement.call(document, tag);
+      const element = originalCreateElement(tag);
       return element;
     });
   });
@@ -216,6 +231,214 @@ describe("DICOM to PNG Converter", () => {
         loaded: 3,
         total: 3,
       });
+    });
+
+    it("should handle null main canvas context and continue", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      createElementSpy.mockImplementation((tag: string) => {
+        if (tag === "canvas") {
+          return {
+            width: 512,
+            height: 512,
+            getContext: vi.fn(() => null),
+            toBlob: vi.fn(),
+            toDataURL: vi.fn(),
+          } as any;
+        }
+        if (tag === "a") {
+          return mockLink;
+        }
+        return originalCreateElement(tag);
+      });
+
+      const results = await convertDicomSlicesToPng([mockFiles[0]]);
+
+      expect(results).toHaveLength(0);
+      expect(errorSpy).toHaveBeenCalled();
+    });
+
+    it("should handle null temp canvas context and continue", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      let canvasCallCount = 0;
+
+      createElementSpy.mockImplementation((tag: string) => {
+        if (tag === "canvas") {
+          canvasCallCount += 1;
+          const isMainCanvas = canvasCallCount % 2 === 1;
+          return {
+            width: 512,
+            height: 512,
+            getContext: vi.fn(() =>
+              isMainCanvas
+                ? {
+                    createImageData: vi.fn(() => ({
+                      data: new Uint8ClampedArray(512 * 512 * 4),
+                    })),
+                    putImageData: vi.fn(),
+                    drawImage: vi.fn(),
+                  }
+                : null,
+            ),
+            toBlob: vi.fn((callback) =>
+              callback(new Blob([new ArrayBuffer(8)], { type: "image/png" })),
+            ),
+            toDataURL: vi.fn(() => "data:image/png;base64,mock"),
+          } as any;
+        }
+        if (tag === "a") {
+          return mockLink;
+        }
+        return originalCreateElement(tag);
+      });
+
+      const results = await convertDicomSlicesToPng([mockFiles[0]]);
+
+      expect(results).toHaveLength(0);
+      expect(errorSpy).toHaveBeenCalled();
+    });
+
+    it("should handle null PNG blob from canvas and continue", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      createElementSpy.mockImplementation((tag: string) => {
+        if (tag === "canvas") {
+          return {
+            width: 512,
+            height: 512,
+            getContext: vi.fn(() => ({
+              createImageData: vi.fn(() => ({
+                data: new Uint8ClampedArray(512 * 512 * 4),
+              })),
+              putImageData: vi.fn(),
+              drawImage: vi.fn(),
+            })),
+            toBlob: vi.fn((callback) => callback(null)),
+            toDataURL: vi.fn(() => "data:image/png;base64,mock"),
+          } as any;
+        }
+        if (tag === "a") {
+          return mockLink;
+        }
+        return originalCreateElement(tag);
+      });
+
+      const results = await convertDicomSlicesToPng([mockFiles[0]]);
+
+      expect(results).toHaveLength(0);
+      expect(errorSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("convertDicomSeriesToPng()", () => {
+    it("should parse, group, and convert files by series", async () => {
+      const progressCallback = vi.fn();
+
+      const result = await convertDicomSeriesToPng(mockFiles, { progressCallback });
+
+      expect(vi.mocked(parseDicomFiles)).toHaveBeenCalled();
+      expect(vi.mocked(groupDicomFiles)).toHaveBeenCalled();
+      expect(result.resultsBySeries.has("TEST123_study1_series1")).toBe(true);
+
+      const converted = result.resultsBySeries.get("TEST123_study1_series1");
+      expect(converted).toHaveLength(3);
+      expect(converted?.[0].sliceIndex).toBe(0);
+      expect(converted?.[0].metadata?.patientID).toBe("TEST123");
+      expect(progressCallback).toHaveBeenCalled();
+    });
+
+    it("should continue series conversion if one file fails", async () => {
+      const { readImage } = await import("@itk-wasm/image-io");
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      vi.mocked(readImage)
+        .mockRejectedValueOnce(new Error("bad dicom"))
+        .mockResolvedValue({
+          image: {
+            size: [512, 512],
+            data: new Float32Array(512 * 512).fill(100),
+          },
+        } as any);
+
+      const result = await convertDicomSeriesToPng([mockFiles[0], mockFiles[1]]);
+      const converted = result.resultsBySeries.get("TEST123_study1_series1");
+
+      expect(converted).toHaveLength(1);
+      expect(errorSpy).toHaveBeenCalled();
+    });
+
+    it("should handle empty grouped result", async () => {
+      vi.mocked(groupDicomFiles).mockReturnValueOnce(new Map() as any);
+
+      const result = await convertDicomSeriesToPng(mockFiles);
+
+      expect(result.resultsBySeries.size).toBe(0);
+    });
+  });
+
+  describe("downloadOrganizedPngs()", () => {
+    it("should create series folders and include metadata for first slice", async () => {
+      const folderFileSpy = vi.fn();
+      vi.mocked(mockZipInstance.folder).mockReturnValue({ file: folderFileSpy } as any);
+
+      const resultsBySeries = new Map([
+        [
+          "TEST123_study1_series1",
+          [
+            {
+              file: mockFiles[0],
+              pngBlob: new Blob(),
+              pngDataUrl: "data:image/png;base64,one",
+              sliceIndex: 0,
+              metadata: {
+                file: mockFiles[0],
+                isDICOM: true,
+                patientID: "TEST123",
+                seriesInstanceID: "series1",
+              },
+            },
+            {
+              file: mockFiles[1],
+              pngBlob: new Blob(),
+              pngDataUrl: "data:image/png;base64,two",
+              sliceIndex: 1,
+            },
+          ],
+        ],
+      ]);
+
+      await downloadOrganizedPngs(resultsBySeries, "organized.zip");
+
+      expect(mockZipInstance.folder).toHaveBeenCalledWith("TEST123_study1_series1");
+      expect(folderFileSpy).toHaveBeenCalledWith("slice-0000.png", expect.any(Blob));
+      expect(folderFileSpy).toHaveBeenCalledWith("slice-0001.png", expect.any(Blob));
+      expect(folderFileSpy).toHaveBeenCalledWith(
+        "metadata.json",
+        expect.stringContaining("TEST123"),
+      );
+      expect(mockLink.download).toBe("organized.zip");
+    });
+
+    it("should skip writing files when zip folder creation fails", async () => {
+      vi.mocked(mockZipInstance.folder).mockReturnValueOnce(null as any);
+
+      const resultsBySeries = new Map([
+        [
+          "TEST123_study1_series1",
+          [
+            {
+              file: mockFiles[0],
+              pngBlob: new Blob(),
+              pngDataUrl: "data:image/png;base64,one",
+              sliceIndex: 0,
+            },
+          ],
+        ],
+      ]);
+
+      await expect(downloadOrganizedPngs(resultsBySeries)).resolves.not.toThrow();
+      expect(mockZipInstance.generateAsync).toHaveBeenCalled();
+      expect(mockLink.download).toBe("dicom-export.zip");
     });
   });
 
