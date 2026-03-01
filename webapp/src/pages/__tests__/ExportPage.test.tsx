@@ -365,14 +365,16 @@ describe("ExportPage", () => {
       buildContext({ fileInfo: baseFileInfo }),
     );
 
-    let resolveConversion: ((value: any) => void) | null = null;
-    mockedConvertDicomSeriesToPng.mockImplementation(
-      (_files, options?: { progressCallback?: (evt: any) => void }) =>
-        new Promise((resolve) => {
-          resolveConversion = resolve;
-          options?.progressCallback?.({ loaded: 1 });
-        }),
-    );
+const conversionRef: { resolve: ((value: any) => void) | null } = { resolve: null };
+
+mockedConvertDicomSeriesToPng.mockImplementation(
+  (_files, options?: { progressCallback?: (evt: any) => void }) =>
+    new Promise((resolve) => {
+      conversionRef.resolve = resolve;
+      options?.progressCallback?.({ loaded: 1 });
+    }),
+);
+
 
     render(
       <MemoryRouter>
@@ -385,8 +387,8 @@ describe("ExportPage", () => {
 
     expect(await screen.findByText("Converting DICOM slices...")).toBeInTheDocument();
     expect(screen.queryByText(/Converting DICOM slices... \(1\//i)).not.toBeInTheDocument();
-
-    resolveConversion?.({ resultsBySeries: new Map(), grouped: new Map() });
+    expect(conversionRef.resolve).not.toBeNull();
+    conversionRef.resolve!({ resultsBySeries: new Map(), grouped: new Map() });
 
     await waitFor(() => {
       expect(mockedDownloadOrganizedPngs).toHaveBeenCalled();
