@@ -8,6 +8,8 @@ import {
 import type { vtkImageData } from "@kitware/vtk.js/Common/DataModel/ImageData";
 
 // Mock VTK modules
+//VTK.js cannot run in a test environment, so the marching cubes filter, smoothing filter, and stl writer are replaced with minimal stubs
+
 vi.mock("@kitware/vtk.js/Filters/General/ImageMarchingCubes", () => ({
   default: {
     newInstance: vi.fn(() => ({
@@ -40,6 +42,7 @@ vi.mock("@kitware/vtk.js/IO/Geometry/STLWriter", () => ({
   },
 }));
 
+//Tests
 describe("STL Export - Segmentation Tests", () => {
   let mockImageData: vtkImageData;
   let createElementSpy: any;
