@@ -34,6 +34,7 @@ Capstone project for BS in Computer Science, University of Maine
 ```bash
 cd webapp
 npx vitest run
+npx vitest run --coverage
 ```
 
 ### E2E Tests (Playwright)

@@ -3,6 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Layout from "../Layout";
 
+//These tests verify that the layout component renders the correct navigation structure and applies
+//active styling to whichever route the user is currently on
+
+
 describe("Layout", () => {
   it("renders header, nav tabs, and children", () => {
     render(
