@@ -18,6 +18,7 @@ test.describe("Upload Page", () => {
     await expect(page.getByText("Drop DICOM folder here")).toBeVisible();
   });
 
+  // Test will upload a test DICOM File and navigate to previewer
   test("should upload DICOM files and navigate to preview", async ({
     page,
     browserName,
@@ -58,6 +59,7 @@ test.describe("Upload Page", () => {
     await expect(page.getByText("Successfully loaded")).toBeVisible();
   });
 
+  // Takes the folder containing an invalid file option in this case our invalid option is a txt file in a folder and test for an error
   test("should show error for non-DICOM files (folder upload)", async ({
     page,
   }) => {

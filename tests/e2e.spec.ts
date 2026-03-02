@@ -1,6 +1,7 @@
 //tests/e2e.spec.ts
 import { test, expect } from "@playwright/test";
 
+// Load and scan the page for the title AnaToPrint
 test.describe("AnaToPrint Webapp E2E", () => {
   test("homepage loads", async ({ page }) => {
     await page.goto("http://localhost:5173");
@@ -8,6 +9,7 @@ test.describe("AnaToPrint Webapp E2E", () => {
     await expect(page.locator("h1")).toBeVisible();
   });
 
+  // Testing for Navigation between pages (About, Preview, Export, etc.)
   test("navigation links work", async ({ page }) => {
     await page.goto("http://localhost:5173");
 
@@ -27,6 +29,7 @@ test.describe("AnaToPrint Webapp E2E", () => {
     await expect(page).toHaveURL("http://localhost:5173/");
   });
 
+  // Checking pages for the text on navigated pages
   test("About page content visible", async ({ page }) => {
     await page.goto("http://localhost:5173/about");
     await expect(page.locator('h1:has-text("AnaToPrint")')).toBeVisible();

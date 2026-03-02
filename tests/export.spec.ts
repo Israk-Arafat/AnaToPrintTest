@@ -13,6 +13,7 @@ test.describe("Export Page", () => {
     await expect(page).toHaveURL("/export");
   });
 
+  // Checking the export page for the options that would exist such as tissue thresholds
   test("should display export options", async ({ page }) => {
     await expect(page.locator("h2")).toContainText("Export 3D Model");
     await expect(page.getByText("STL File")).toBeVisible();
@@ -73,6 +74,7 @@ test.describe("Export Page", () => {
     expect(download.suggestedFilename()).toBe("test_export.stl");
   });
 
+  // Tests that the export shouldnt work without having a filename prior to exporting
   test("should not allow export without filename", async ({ page }) => {
     const filenameInput = page.locator('input[type="text"]#filename');
     await filenameInput.clear();

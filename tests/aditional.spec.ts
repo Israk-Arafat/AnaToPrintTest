@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 
+// Tests for Navigation of the upload page and file uploading timeout set high because of upload times
 test.describe("DICOM Upload Navigation", () => {
   test.setTimeout(60000);
 
@@ -11,6 +12,7 @@ test.describe("DICOM Upload Navigation", () => {
     });
   });
 
+  // Similarly Page should redirect to 3D previewer after a user uploads the file
   test("should navigate to 3D Preview after upload", async ({ page }) => {
     await page.goto("/");
 
@@ -35,6 +37,7 @@ test.describe("DICOM Upload Navigation", () => {
     await expect(page.getByText(/3D Preview/i)).toBeVisible({ timeout: 10000 });
   });
 
+  // Similarly to above the page should navigate to export after uploaded file and button pressed
   test("should navigate to Export page after upload", async ({ page }) => {
     await page.goto("/");
 

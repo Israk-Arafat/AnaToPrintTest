@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 
+// Tests for Navigation of the site
 test.describe("Navigation", () => {
   test("should redirect to upload when accessing preview without data", async ({
     page,
@@ -16,6 +17,7 @@ test.describe("Navigation", () => {
     await expect(page).toHaveURL("/");
   });
 
+  // Checks that the website will redirect you to the upload page if there is nothing uploaded and a user is on the export page
   test("should redirect to upload when accessing export without data", async ({
     page,
   }) => {
@@ -31,6 +33,7 @@ test.describe("Navigation", () => {
     await expect(page).toHaveURL("/");
   });
 
+  // Settings Test
   test("should navigate to settings page", async ({ page }) => {
     await page.goto("/");
 
@@ -42,7 +45,7 @@ test.describe("Navigation", () => {
     }
   });
 
-  //Checking for content within pages
+  // Checking for content within pages
   test("About page content visible", async ({ page }) => {
     await page.goto("http://localhost:5173/about");
     await expect(page.locator('h1:has-text("AnaToPrint")')).toBeVisible();
