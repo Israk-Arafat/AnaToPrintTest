@@ -52,7 +52,7 @@ npm run test:e2e
 - **Frontend**: React + TypeScript
 - **Build Tool**: Vite
 - **3D Visualization**: VTK.js
-- **DICOM Processing**: ITK.WASM
+- **DICOM Processing**: ITK.WASM + jszip
 - **Testing**: End-to-End Testing - Playwright + Unit & Component Testing - Vitest
 
 ## Project Structure
