@@ -156,7 +156,7 @@ const ExportPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <ExportProgressModal
         isOpen={isExporting}
         stage={exportStage}
@@ -165,11 +165,11 @@ const ExportPage = () => {
         onClose={handleModalClose}
       />
 
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-semibold mb-2 text-gray-800">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold mb-2 text-gray-800">
           Export 3D Model
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-6">
           Choose output format and save location
         </p>
 
@@ -321,7 +321,7 @@ const ExportPage = () => {
         )}
 
         {/* Export Summary */}
-        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-lg">
           <h3 className="text-lg font-semibold text-blue-900 mb-3">
             Export Summary
           </h3>

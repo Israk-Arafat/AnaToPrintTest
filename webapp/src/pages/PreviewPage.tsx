@@ -74,10 +74,10 @@ const PreviewPage = () => {
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="max-w-6xl mx-auto flex gap-6">
       {/* Main Content */}
-      <div className="flex-1 bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-semibold mb-2 text-gray-800">
+      <div className="flex-1 bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold mb-2 text-gray-800">
           3D Preview & Tissue Selection
         </h2>
         <p className="text-gray-600 mb-6">
