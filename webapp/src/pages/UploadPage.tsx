@@ -155,9 +155,9 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-semibold mb-2 text-gray-800">
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold mb-2 text-gray-800">
           Upload DICOM Files
         </h2>
         <p className="text-gray-600 mb-6">
@@ -165,7 +165,7 @@ const UploadPage = () => {
         </p>
 
         <div
-          className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
             isDragging
               ? "border-blue-600 bg-blue-50"
               : "border-gray-300 hover:border-gray-400"

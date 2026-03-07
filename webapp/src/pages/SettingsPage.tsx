@@ -9,17 +9,17 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-3xl font-semibold mb-2 text-gray-800">
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold mb-2 text-gray-800">
           Help & Settings
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-6">
           User guidance and application settings
         </p>
 
         {/* Quick Start Guide */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-xl font-semibold mb-3 text-gray-800">
             Quick Start Guide
           </h3>
@@ -43,7 +43,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Display Settings */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-xl font-semibold mb-3 text-gray-800">
             Display Settings
           </h3>
@@ -104,7 +104,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Supported Formats */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-xl font-semibold mb-3 text-gray-800">
             Supported Formats
           </h3>
@@ -119,7 +119,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Processing Settings */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-xl font-semibold mb-3 text-gray-800">
             Processing Settings
           </h3>
@@ -146,7 +146,7 @@ const SettingsPage = () => {
         </div>
 
         {/* About */}
-        <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+        <div className="mb-6 p-6 bg-gray-50 rounded-lg">
           <h3 className="text-xl font-semibold mb-3 text-gray-800">About</h3>
           <div className="space-y-1 text-gray-700">
             <p>Medical CT Scan 3D Modeling Application</p>
