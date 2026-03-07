@@ -45,7 +45,7 @@ const Navigation = () => {
                 to={tab.path}
                 className={`block px-6 py-4 border-b-4 transition-all ${
                   location.pathname === tab.path
-                    ? "border-blue-500 text-blue-600 font-semibold"
+                    ? "border-blue-600 text-blue-600 font-semibold"
                     : "border-transparent text-gray-600 hover:bg-gray-50"
                 }`}
               >

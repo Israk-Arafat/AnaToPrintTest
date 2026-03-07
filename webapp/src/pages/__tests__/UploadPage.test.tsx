@@ -354,7 +354,7 @@ describe("UploadPage", () => {
     const dropZone = getDropZone(container);
 
     fireEvent.dragOver(dropZone);
-    expect(dropZone.className).toContain("border-blue-500");
+    expect(dropZone.className).toContain("border-blue-600");
 
     fireEvent.dragLeave(dropZone);
     expect(dropZone.className).toContain("border-gray-300");

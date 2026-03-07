@@ -167,7 +167,7 @@ const UploadPage = () => {
         <div
           className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
             isDragging
-              ? "border-blue-500 bg-blue-50"
+              ? "border-blue-600 bg-blue-50"
               : "border-gray-300 hover:border-gray-400"
           }`}
           onDragOver={handleDragOver}
@@ -235,7 +235,7 @@ const UploadPage = () => {
             <div className="space-y-4">
               <div className="w-full bg-gray-200 rounded-full h-5">
                 <div
-                  className="bg-blue-500 h-5 rounded-full"
+                  className="bg-blue-600 h-5 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -306,7 +306,7 @@ const UploadPage = () => {
           {displayIsComplete && (
             <button
               onClick={handleBrowseClick}
-              className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Select Different Folder
             </button>
@@ -333,7 +333,7 @@ const UploadPage = () => {
           <div className="mt-6 flex gap-3">
             <button
               onClick={handleNextClick}
-              className="flex-1 px-6 py-3 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors font-medium"
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
             >
               Continue to 3D Preview →
             </button>
@@ -342,7 +342,7 @@ const UploadPage = () => {
                 setDicomData(displayVtkImage, displayFileInfo);
                 navigate("/export");
               }}
-              className="flex-1 px-6 py-3 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-colors font-medium"
+              className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors font-medium"
             >
               Skip to Export →
             </button>
