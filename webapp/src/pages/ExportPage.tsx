@@ -186,7 +186,7 @@ const ExportPage = () => {
                 value="stl"
                 checked={exportFormat === "stl"}
                 onChange={() => setExportFormat("stl")}
-                className="mt-1 w-4 h-4 text-blue-500"
+                className="mt-1 w-4 h-4 text-blue-600"
               />
               <div>
                 <div className="font-medium text-gray-800">STL File</div>
@@ -202,7 +202,7 @@ const ExportPage = () => {
                 value="gcode"
                 checked={exportFormat === "gcode"}
                 onChange={() => setExportFormat("gcode")}
-                className="mt-1 w-4 h-4 text-blue-500"
+                className="mt-1 w-4 h-4 text-blue-600"
               />
               <div>
                 <div className="font-medium text-gray-800">G-code</div>
@@ -228,7 +228,7 @@ const ExportPage = () => {
             id="filename"
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
             placeholder="Enter filename"
           />
           <p className="mt-1 text-sm text-gray-500">
@@ -256,7 +256,7 @@ const ExportPage = () => {
                     value={key}
                     checked={threshold === key}
                     onChange={() => setThreshold(key)}
-                    className="w-4 h-4 text-blue-500"
+                    className="w-4 h-4 text-blue-600"
                   />
                   <span className="font-medium text-gray-800 flex-1">
                     {TISSUE_LABELS[key]}
@@ -273,7 +273,7 @@ const ExportPage = () => {
                   value="custom"
                   checked={threshold === "custom"}
                   onChange={() => setThreshold("custom")}
-                  className="w-4 h-4 text-blue-500"
+                  className="w-4 h-4 text-blue-600"
                 />
                 <span className="font-medium text-gray-800">Custom</span>
                 <input
@@ -307,7 +307,7 @@ const ExportPage = () => {
                 type="checkbox"
                 checked={smoothing}
                 onChange={(e) => setSmoothing(e.target.checked)}
-                className="mt-1 w-4 h-4 text-blue-500 rounded"
+                className="mt-1 w-4 h-4 text-blue-600 rounded"
               />
               <div className="flex-1">
                 <div className="font-medium text-gray-800">Apply Smoothing</div>
@@ -366,7 +366,7 @@ const ExportPage = () => {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isExporting ? "Processing..." : "Generate & Download"}
           </button>

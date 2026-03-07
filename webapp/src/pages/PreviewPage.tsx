@@ -133,7 +133,7 @@ const PreviewPage = () => {
           </button>
           <button
             onClick={handleNextClick}
-            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Next: Export →
           </button>
@@ -159,7 +159,7 @@ const PreviewPage = () => {
                   value={type}
                   checked={tissueType === type}
                   onChange={() => handleTissueChange(type)}
-                  className="w-4 h-4 text-blue-500"
+                  className="w-4 h-4 text-blue-600"
                 />
                 <span className="capitalize text-gray-700">{type}</span>
               </label>
@@ -218,7 +218,7 @@ const PreviewPage = () => {
             max="3071"
             value={huThreshold}
             onChange={(e) => setHuThreshold(Number(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
           />
           <div className="flex items-center justify-center gap-2 mt-2">
             <input
@@ -227,7 +227,7 @@ const PreviewPage = () => {
               max="3071"
               value={huThreshold}
               onChange={(e) => setHuThreshold(Number(e.target.value))}
-              className="w-24 px-3 py-1 text-center text-lg font-medium text-blue-600 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-24 px-3 py-1 text-center text-lg font-medium text-blue-600 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             <span className="text-lg font-medium text-gray-600">HU</span>
           </div>

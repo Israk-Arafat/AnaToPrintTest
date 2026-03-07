@@ -133,7 +133,7 @@ const ExportProgressModal = ({
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500 ease-out"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 h-full rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>

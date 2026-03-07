@@ -38,7 +38,7 @@ describe("Layout", () => {
     const exportLink = screen.getByRole("link", { name: "Export" });
     const uploadLink = screen.getByRole("link", { name: "Upload" });
 
-    expect(exportLink.className).toContain("border-blue-500");
+    expect(exportLink.className).toContain("border-blue-600");
     expect(exportLink.className).toContain("text-blue-600");
     expect(uploadLink.className).toContain("border-transparent");
   });

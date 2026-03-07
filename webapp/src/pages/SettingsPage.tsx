@@ -62,7 +62,7 @@ const SettingsPage = () => {
                 onChange={(e) =>
                   updateSettings({ renderQuality: e.target.value as any })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
               >
                 <option value="high">High (recommended)</option>
                 {/* <option value="medium">Medium</option>
@@ -83,7 +83,7 @@ const SettingsPage = () => {
                 onChange={(e) =>
                   updateSettings({ backgroundColor: e.target.value as any })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
               >
                 <option value="white">White (default)</option>
               </select>
@@ -95,7 +95,7 @@ const SettingsPage = () => {
                 type="checkbox"
                 checked={settings.showGrid}
                 onChange={(e) => updateSettings({ showGrid: e.target.checked })}
-                className="w-4 h-4 text-blue-500 rounded"
+                className="w-4 h-4 text-blue-600 rounded"
                 disabled
               />
               <span className="text-gray-700">Show Grid</span>
@@ -133,7 +133,7 @@ const SettingsPage = () => {
                   updateSettings({ autoOptimize: e.target.checked })
                 }
                 disabled
-                className="mt-1 w-4 h-4 text-blue-500 rounded"
+                className="mt-1 w-4 h-4 text-blue-600 rounded"
               />
               <div>
                 <div className="text-gray-700">Auto-optimize meshes</div>
@@ -160,7 +160,7 @@ const SettingsPage = () => {
         <div className="flex gap-3">
           <button
             onClick={handleSaveSettings}
-            className="px-6 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Save Settings
           </button>
