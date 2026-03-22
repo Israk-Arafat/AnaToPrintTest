@@ -42,6 +42,15 @@ export default function Viewer3D({
   const ctfunRef = useRef<vtkColorTransferFunctionType | null>(null);
   const ofunRef = useRef<vtkPiecewiseFunctionType | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [fps, setFps] = useState(0);
+  const [showFps, setShowFps] = useState(false);
+  const fpsTracker = useRef({
+    active: false,
+    frameCount: 0,
+    lastTime: 0,
+    rafId: 0,
+    hideTimeout: undefined as ReturnType<typeof setTimeout> | undefined,
+  });
 
   useEffect(() => {
     if (!containerRef.current || !vtkImage) return;
@@ -113,6 +122,44 @@ export default function Viewer3D({
     // Initial render
     renderWindow.render();
 
+    // FPS tracking via DOM pointer events on the render container
+    const el = containerRef.current!;
+    const tracker = fpsTracker.current;
+
+    const startFps = () => {
+      clearTimeout(tracker.hideTimeout);
+      setShowFps(true);
+      if (tracker.active) return;
+      tracker.active = true;
+      tracker.frameCount = 0;
+      tracker.lastTime = performance.now();
+
+      const tick = () => {
+        if (!tracker.active) return;
+        tracker.frameCount++;
+        const now = performance.now();
+        if (now - tracker.lastTime >= 300) {
+          setFps(
+            Math.round((tracker.frameCount / (now - tracker.lastTime)) * 1000),
+          );
+          tracker.frameCount = 0;
+          tracker.lastTime = now;
+        }
+        tracker.rafId = requestAnimationFrame(tick);
+      };
+      tracker.rafId = requestAnimationFrame(tick);
+    };
+
+    const stopFps = () => {
+      tracker.active = false;
+      cancelAnimationFrame(tracker.rafId);
+      tracker.hideTimeout = setTimeout(() => setShowFps(false), 1500);
+    };
+
+    el.addEventListener("pointerdown", startFps);
+    el.addEventListener("pointerup", stopFps);
+    el.addEventListener("pointercancel", stopFps);
+
     setIsReady(true);
     if (onReady) {
       onReady();
@@ -120,10 +167,16 @@ export default function Viewer3D({
 
     // Cleanup
     return () => {
+      tracker.active = false;
+      cancelAnimationFrame(tracker.rafId);
+      clearTimeout(tracker.hideTimeout);
+      el.removeEventListener("pointerdown", startFps);
+      el.removeEventListener("pointerup", stopFps);
+      el.removeEventListener("pointercancel", stopFps);
       if (fullScreenRendererRef.current) {
-        const interactor = fullScreenRendererRef.current.getInteractor();
-        if (interactor) {
-          interactor.unbindEvents();
+        const cleanupInteractor = fullScreenRendererRef.current.getInteractor();
+        if (cleanupInteractor) {
+          cleanupInteractor.unbindEvents();
         }
         fullScreenRendererRef.current.delete();
         fullScreenRendererRef.current = null;
@@ -194,6 +247,11 @@ export default function Viewer3D({
   return (
     <div className={`relative w-full h-full ${className}`}>
       <div ref={containerRef} className="w-full h-full" />
+      {showFps && (
+        <div className="absolute bottom-4 left-4 bg-black/60 text-green-400 text-xs font-mono px-2 py-1 rounded pointer-events-none select-none">
+          {fps} FPS
+        </div>
+      )}
       {isReady && (
         <div className="absolute top-4 right-4 flex gap-2">
           <button
