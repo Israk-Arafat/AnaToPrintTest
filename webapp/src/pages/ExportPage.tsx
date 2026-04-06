@@ -37,7 +37,6 @@ const ExportPage = () => {
     polygonCount?: number;
     slicesProcessed?: number;
     totalSlices?: number;
-
   }>({});
 
   const handleExport = async () => {
@@ -108,6 +107,7 @@ const ExportPage = () => {
           }));
           setExportStage("complete");
 
+          //look into this
           // Close the modal shortly after showing completion so user sees success
           setTimeout(() => {
             handleModalClose();
