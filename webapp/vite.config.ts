@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
+  base: "/Ochre-Capstone/",
   test: {
     globals: true,
     environment: "jsdom",
