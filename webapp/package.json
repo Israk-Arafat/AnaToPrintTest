@@ -8,6 +8,7 @@
     "test:coverage": "vitest run --coverage",
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:pages": "tsc && vite build --base=/Ochre-Capstone/",
     "preview": "vite preview"
   },
   "dependencies": {

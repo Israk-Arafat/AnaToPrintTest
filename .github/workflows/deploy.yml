@@ -33,8 +33,17 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
       - name: Build application
-        run: npm run build
+        run: npm run build:pages
         working-directory: ./webapp
+
+      - name: Verify build output
+        run: |
+          echo "=== dist contents ==="
+          ls -la webapp/dist/
+          echo "=== dist/assets ==="
+          ls -la webapp/dist/assets/ || echo "No assets folder found!"
+          echo "=== index.html script/link tags ==="
+          grep -E 'src=|href=' webapp/dist/index.html || true
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
