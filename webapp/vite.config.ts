@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
-export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? "/Ochre-Capstone/" : "/",
+export default defineConfig(({ mode }) => ({
+  base: mode === "production" ? "/Ochre-Capstone/" : "/",
   test: {
     globals: true,
     environment: "jsdom",
@@ -51,4 +51,4 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-});
+}));
