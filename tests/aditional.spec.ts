@@ -23,10 +23,14 @@ test.describe("DICOM Upload Navigation", () => {
     await fileInput.setInputFiles(dicomFolder);
 
     // Wait for success message
-    await expect(page.getByText(/Successfully loaded \d+ DICOM files/)).toBeVisible({ timeout: 20000 });
+    await expect(
+      page.getByText(/Successfully loaded \d+ DICOM files/),
+    ).toBeVisible({ timeout: 20000 });
 
     // Click Continue to 3D Preview
-    const previewButton = page.getByRole("button", { name: /Continue to 3D Preview/i });
+    const previewButton = page.getByRole("button", {
+      name: /Continue to 3D Preview/i,
+    });
     await expect(previewButton).toBeVisible({ timeout: 10000 });
     await previewButton.click();
 
@@ -46,7 +50,9 @@ test.describe("DICOM Upload Navigation", () => {
     const dicomFolder = path.join(__dirname, "fixtures/Test_CT_Dicom");
     await fileInput.setInputFiles(dicomFolder);
 
-    await expect(page.getByText(/Successfully loaded \d+ DICOM files/)).toBeVisible({ timeout: 20000 });
+    await expect(
+      page.getByText(/Successfully loaded \d+ DICOM files/),
+    ).toBeVisible({ timeout: 20000 });
 
     // Click Skip to Export
     const exportButton = page.getByRole("button", { name: /Skip to Export/i });
@@ -55,9 +61,8 @@ test.describe("DICOM Upload Navigation", () => {
 
     // Verify navigation
     await expect(page).toHaveURL("/export");
-
-    // Check export heading
-    await expect(page.getByText(/Export 3D Model/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Export 3D Model/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
-  
 });

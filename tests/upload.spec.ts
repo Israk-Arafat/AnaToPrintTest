@@ -23,7 +23,6 @@ test.describe("Upload Page", () => {
     page,
     browserName,
   }) => {
-
     await uploadDicomFiles(page);
 
     // Wait for the upload to be processed
@@ -65,12 +64,17 @@ test.describe("Upload Page", () => {
   }) => {
     await page.goto("/");
 
-    const fileInput = page.locator('input[type="file"]');
-
     //folder containing invalid file(s)
     const invalidFolderPath = path.join(__dirname, "fixtures/Invalid_Folder");
 
-    await fileInput.setInputFiles(invalidFolderPath);
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await page
+      .locator("div")
+      .filter({ hasText: /Drop DICOM folder here/ })
+      .first()
+      .click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(invalidFolderPath);
 
     await expect(page.getByText("Error")).toBeVisible();
   });

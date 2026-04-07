@@ -5,7 +5,6 @@ test.describe("Export Page", () => {
   test.setTimeout(60000);
 
   test.beforeEach(async ({ page, browserName }) => {
-
     await page.goto("/");
     await uploadDicomFiles(page);
 
@@ -18,7 +17,11 @@ test.describe("Export Page", () => {
     await expect(page.locator("h2")).toContainText("Export 3D Model");
     await expect(page.getByText("STL File")).toBeVisible();
     await expect(page.getByText("G-code", { exact: true })).toBeVisible();
-    await expect(page.getByText("Export PNGs for G-code generation (downloads organized PNG zip)")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Export PNGs for G-code generation (downloads organized PNG zip)",
+      ),
+    ).toBeVisible();
   });
 
   test("should allow selecting tissue thresholds", async ({ page }) => {
