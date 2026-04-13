@@ -17,6 +17,7 @@
     "@kitware/vtk.js": "^34.15.1",
     "@tailwindcss/vite": "^4.1.17",
     "gl-matrix": "^3.4.3",
+    "jszip": "^3.10.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
