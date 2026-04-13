@@ -4,7 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/Ochre-Capstone/" : "/",
+  base: process.env.VERCEL
+    ? "/"
+    : mode === "production"
+      ? "/Ochre-Capstone/"
+      : "/",
   test: {
     globals: true,
     environment: "jsdom",
