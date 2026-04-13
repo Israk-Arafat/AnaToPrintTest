@@ -14,7 +14,7 @@ const AboutPage = lazy(() => import("./pages/AboutPage"));
 
 function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <ErrorBoundary>
         <DicomProvider>
           <Layout>

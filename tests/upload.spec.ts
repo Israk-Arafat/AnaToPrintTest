@@ -48,10 +48,6 @@ test.describe("Upload Page", () => {
     page,
     browserName,
   }) => {
-    // test.skip(
-    //   browserName === "firefox",
-    //   "Firefox has issues with directory uploads in CI"
-    // );
 
     await uploadDicomFiles(page);
 
